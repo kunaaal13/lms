@@ -14,6 +14,7 @@ import ImageForm from './_components/image-form'
 import { CategoryForm } from './_components/category-form'
 import { PriceForm } from './_components/price-form'
 import AttachmentForm from './_components/attachment-form'
+import ChaptersForm from './_components/chapters-form'
 
 type CourseIdPageProps = {
   params: {
@@ -29,11 +30,17 @@ async function CourseIdPage({ params: { courseId } }: CourseIdPageProps) {
   const course = await db.course.findUnique({
     where: {
       id: courseId,
+      userId,
     },
     include: {
       attachments: {
         orderBy: {
           createdAt: 'desc',
+        },
+      },
+      chapters: {
+        orderBy: {
+          position: 'asc',
         },
       },
     },
@@ -53,6 +60,7 @@ async function CourseIdPage({ params: { courseId } }: CourseIdPageProps) {
     course.imageUrl,
     course.price,
     course.categoryId,
+    course.chapters.some((chapter) => chapter.isPublished),
   ]
 
   const totalFields = requiredFields.length
@@ -104,7 +112,7 @@ async function CourseIdPage({ params: { courseId } }: CourseIdPageProps) {
               <h2 className='text-xl'>Course Chapters</h2>
             </div>
 
-            <div>TODO: Chapters</div>
+            <ChaptersForm initialData={course} courseId={course.id} />
           </div>
 
           <div>
